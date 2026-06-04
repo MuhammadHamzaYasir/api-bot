@@ -29,10 +29,14 @@ app.command("/mhy-help", async ({ ack, respond }) => {
 `Available Commands:
 /mhy-ping - Check bot latency
 /mhy-catfact - Get a cat fact
-/mhy-joke - get a joke`
+/mhy-joke - get a joke
+/mhy-dadjoke - gets ba dad joke
+/mhy-fact - gats you a random fact
+/mhy-humor - gets you a humours quote
+mhy-inspire - gets you a inspirational code`
   });
 });
-
+ 
 app.command("/mhy-cat-fact", async ({ ack, respond }) => {
   await ack();
 
@@ -59,4 +63,103 @@ ${response.data.punchline}`
   } catch (err) {
     await respond({ text: "Failed to fetch a joke." });
   }
+});
+
+
+app.command("/mhy-fact", async ({ ack, respond }) => {
+  await ack();
+
+  try {
+    const response = await axios.get("https://api.api-ninjas.com/v1/facts", {
+      headers: {
+        "X-Api-Key": process.env.API_NINJAS_KEY || "YOUR_API_KEY"
+      }
+    });
+
+    const fact = Array.isArray(response.data) && response.data.length
+      ? response.data[0]
+      : response.data;
+
+    await respond({
+      text: `${fact.fact}`
+    });
+
+  } catch (err) {
+    console.error(err);
+    await respond({ text: "Failed to fetch a random fact." });
+  }
+});
+
+app.command("/mhy-dadjoke", async ({ ack, respond }) => {
+  await ack();
+
+  try {
+    const response = await axios.get(
+      "https://api.api-ninjas.com/v1/dadjokes",
+      {
+        headers: {
+        "X-Api-Key": process.env.API_NINJAS_KEY || "YOUR_API_KEY"
+      }
+      }
+    );
+
+    const joke = response.data[0];
+
+    await respond({
+      text: `${joke.joke}`
+    });
+
+  } catch (err) {
+    await respond({ text: "Failed to fetch joke." });
+  }
+});
+
+
+app.command("/mhy-humor", async ({ ack, respond }) => {
+  await ack();
+
+  try {
+    const response = await axios.get("https://api.api-ninjas.com/v2/quotes?categories=humor",
+      {
+        headers: {
+        "X-Api-Key": process.env.API_NINJAS_KEY || "YOUR_API_KEY"
+      }
+      }
+    );
+
+    const quote = response.data[0];
+
+    await respond({
+      text: `"${quote.quote}"`
+    });
+
+  } catch (err) {
+  console.error(err.response?.data || err.message);
+  await respond({ text: "Failed to fetch quote." });
+}
+});
+
+app.command("/mhy-inspire", async ({ ack, respond }) => {
+  await ack();
+
+  try {
+    const response = await axios.get(
+      "https://api.api-ninjas.com/v2/quotes?categories=inspirational",
+      {
+        headers: {
+        "X-Api-Key": process.env.API_NINJAS_KEY || "YOUR_API_KEY"
+      }
+      }
+    );
+
+    const quote = response.data[0];
+
+    await respond({
+      text: `"${quote.quote}"`
+    });
+
+  } catch (err) {
+  console.error(err.response?.data || err.message);
+  await respond({ text: "Failed to fetch quote." });
+}
 });
